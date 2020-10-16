@@ -1,14 +1,31 @@
-<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
- <div formArrayName="skills">
-     <div *ngFor="let control of skills.controls;let i=index">
-         
-         <div [formGroupName]="i">
-             <input type="text" formControlName="name">
-             <input type="text" formControlName="rollno">
-         </div> 
-     </div>
- </div>
- <button type="button" (click)="Add()">Add</button>
- <input type="submit" value="submit">
+ <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
    
-</form>
+      <div formArrayName="moviequestion" *ngFor="let creds of userForm.get('moviequestion').controls; let i = index"><br> 
+      <div [formGroupName]="i">
+        {{i}}     
+      
+          <div formGroupName="question">
+            <input type="text" formControlName="title">
+            <div formArrayName="answers" *ngFor="let item of creds.get('question').get('answers').controls;let j=index">
+              {{j}}
+              {{ (item.key) }}
+              
+              <div [formGroupName]="j">
+                  <input type="radio" [formControlName]="item.get('key').value">{{item.get('key').value}}
+              </div>
+              
+            </div>
+          </div>
+           
+          
+        </div>
+         
+      </div>
+                     
+                       
+
+
+    
+  
+</form> 
+{{this.userForm.value|json}} 

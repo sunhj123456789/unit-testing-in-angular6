@@ -1,5 +1,5 @@
 import { Component, OnInit, Input} from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormControl, FormArray, Form } from '@angular/forms';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { UserService } from './user.service';
 import { user } from './user.model';
@@ -13,60 +13,92 @@ export class AppComponent implements OnInit{
  
   userForm:FormGroup;
   userData:user[];
+    movieQuestions = [
+    {
+      question: {
+        title: "What is your favorite genre of movies?",
+        answers: [
+          "Action",
+          "Sci-fi",
+          "Comedy",
+          "Horror"
+        ]
+      }
+    },
+    {
+      question: {
+        title: "What is your favorite to-go snack?",
+        answers: [
+          "Popcorn",
+          "Chocolate",
+          "Pizza"
+        ]
+      }
+    },
+  ];
+ 
   constructor(private fb: FormBuilder,
     private userDetail:UserService) { 
     
 
   }
 
-  ngOnInit(){    
-    this.getDetails();
+  ngOnInit(){      
+    this.createForm();    
   }
 
-  private getDetails():void{
-    this.userDetail.getData().subscribe((data=>{      
-      this.userData=data;      
-      let  formgroupData= this.userData.map(item=>this.buildForm(item));
-      console.log(formgroupData);
-        this.userForm=this.fb.group({         
-          skills:this.fb.array(formgroupData)});                             
-  }));
-}
-  private buildForm(item):FormGroup{
-   return this.fb.group({
-            name:[item?item.name:null,Validators.required],
-            rollno:[item?item.rollno:null,Validators.required]
-          
-    });
-//  return this.fb.group({
-//     name:[name?item.name:null,Validators.required],
-//     rollno:[name?item.rollno:null,Validators.required]
-//   })
-}
-
-  createForm():void{
-    this.userForm=this.fb.group({
-      skills:this.fb.array([])
+  private createForm():void{
+    this.userForm=this.fb.group({    
+      moviequestion:this.fb.array(this.questionForm())
     })
-  }
-
-  get skills():FormArray{
-    return this.userForm.get('skills') as FormArray;
-  }
-
- Add(){
-   this.skills.push(this.create());
- }
-
- create():FormGroup{
-   return this.fb.group({
-     name:[],
-     rollno:[]
-   })
- }
-
     
+      console.log(this.userForm); 
+    //  console.log(this.userForm.controls.question.controls[0].controls.answer);  
+    //  console.log(this.userForm.controls.question.controls[0].controls.answer.controls);                                                            
+  }
   onSubmit(){
    console.log(this.userForm.value);
   } 
+
+  display(value):void{
+console.log(value);
+
+  }
+  
+  // {
+  //   question: {
+  //     title: "What is your favorite genre of movies?",
+  //     answers: [
+  //       "Action",
+  //       "Sci-fi",
+  //       "Comedy",
+  //       "Horror"
+  //     ]
+  //   }
+  // }
+
+  questionForm():FormGroup[]{  
+   
+   return  this.movieQuestions.map((itemList)=>{     
+    return this.fb.group({
+     question:this.fb.group({
+     title:[itemList.question.title],
+     answers:this.fb.array(itemList.question.answers.map((item=>{
+         return this.fb.group({key:[item],[item]:[false]})  
+     })))
+})
+    })     
+  });  
+}
+
+  private createAnswer(answerList):FormGroup{          
+    let answer=this.fb.group({});    
+     answerList.map((item,i)=>{                  
+               let control=new FormControl(item);
+             answer.addControl(item,control);      
+     })    
+      
+    return answer;
+   }
+
 }
